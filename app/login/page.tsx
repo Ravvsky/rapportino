@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
-import xd from "@/assets/images/image.png";
+import loginImage from "@/assets/images/image.png";
 import Image from "next/image";
 import Link from "next/link";
 import { handleLogin } from "../_actions/handleLogin";
@@ -31,7 +31,7 @@ const Page = () => {
   return (
     <div className="h-screen flex justify-center dark ">
       <div className=" bg-neutral-900 flex flex-col justify-center flex-1 items-center">
-        <Image src={xd} alt="" priority={true} />
+        <Image src={loginImage} alt="" priority={true} />
       </div>
       <div className=" flex flex-col justify-center items-center flex-1   ">
         <div className="flex flex-col gap-4 w-[350px] ">
