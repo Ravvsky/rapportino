@@ -1,8 +1,6 @@
-"use client";
 import { Button } from "@/components/ui/button";
 import {
   Table,
-  TableCaption,
   TableHeader,
   TableRow,
   TableHead,
@@ -17,12 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import Link from "next/link";
 
-const Page = () => {
-  const [date, setdate] = useState(new Date());
-
-  const month = date.getMonth();
+const Page = ({ params }: { params: { slug: string } }) => {
   const days = [
     "Sunday",
     "Monday",
@@ -32,10 +27,32 @@ const Page = () => {
     "Friday",
     "Saturday",
   ];
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
-  const monthString = date.toLocaleString("default", { month: "long" }); // Get full month name
-  const year = date.getFullYear();
+  const date = new Date();
+  const monthIndex = months.indexOf(params?.slug?.[0]);
+  const month = monthIndex !== -1 ? monthIndex : date.getMonth();
+
+  const year =
+    params && params.slug && params.slug[1]
+      ? +params.slug[1]
+      : date.getFullYear();
+  console.log(year);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+
   const daysArray = Array.from({ length: daysInMonth }, (_, index) => {
     const currentDate = new Date(year, month, index + 1);
     const dayOfWeek = days[currentDate.getDay()];
@@ -45,30 +62,29 @@ const Page = () => {
       isWeekend: dayOfWeek === "Saturday" || dayOfWeek === "Sunday",
     };
   });
-  const handleNextMonth = () => {
-    const nextMonthDate = new Date(year, date.getMonth() + 1, 1);
-    setdate(nextMonthDate);
-  };
-  const handlePreviousMonth = () => {
-    const nextMonthDate = new Date(year, date.getMonth() - 1, 1);
-    setdate(nextMonthDate);
-  };
+
+  const previousMonthIndex = month === 0 ? 11 : month - 1;
+  const previousYear = month === 0 ? year - 1 : year;
+  const previousMonthString = months[previousMonthIndex];
+
+  const nextMonthIndex = month === 11 ? 0 : month + 1;
+  const nextYear = month === 11 ? year + 1 : year;
+  const nextMonthString = months[nextMonthIndex];
   return (
     <div className="container flex flex-col gap-6">
       <p className="text-3xl font-medium">
-        {" "}
-        {monthString} {year}
+        {months[month]} {year}
       </p>
       <div className="flex justify-between">
         <div className="text-xl font-medium">Worked hours: 168</div>
         <div className="flex gap-4">
           {" "}
-          <Button type="button" variant="outline" onClick={handlePreviousMonth}>
-            Previous month
-          </Button>
-          <Button type="button" variant="outline" onClick={handleNextMonth}>
-            Next month
-          </Button>
+          <Link href={`/reports/${previousMonthString}/${previousYear}`}>
+            <Button variant={"outline"}>Previous month</Button>
+          </Link>
+          <Link href={`/reports/${nextMonthString}/${nextYear}`}>
+            <Button variant={"outline"}>Next month</Button>
+          </Link>
         </div>
       </div>
       <Table>
