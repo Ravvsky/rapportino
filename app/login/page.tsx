@@ -20,10 +20,7 @@ const Page = () => {
     const email = formData.get("email");
     const password = formData.get("password");
     if (isPasswordFieldVisible) {
-      console.log(email, password);
       handleLogin(JSON.stringify({ email: email, password: password }));
-
-      console.log("dupa");
     } else {
       setIsPasswordFieldVisible(true);
     }
