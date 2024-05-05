@@ -8,7 +8,11 @@ export function middleware(request: NextRequest) {
   if (currentUser && request.nextUrl.pathname === "/") {
     return Response.redirect(new URL("/overview", request.url));
   }
-  if (!currentUser && !request.nextUrl.pathname.startsWith("/login")) {
+  if (
+    !currentUser &&
+    !request.nextUrl.pathname.startsWith("/login") &&
+    !request.nextUrl.pathname.startsWith("/sign-up")
+  ) {
     return Response.redirect(new URL("/login", request.url));
   }
 }
