@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { decrypt } from "./_utils/crypto";
-import { cookies } from "next/headers";
 import Navigation from "@/components/ui/navigation";
-
+import getLoggedUserID from "./_actions/getLoggedUserID";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,14 +15,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const encryptedUser = cookies().get("user")?.value;
-  const decryptedUser = encryptedUser && (await decrypt(encryptedUser));
-  const user = decryptedUser && JSON.parse(decryptedUser).userID;
+  const user = await getLoggedUserID();
+
   return (
     <html lang="en">
       <body className={inter.className + " dark "}>
         {user && <Navigation />}
-
         {children}
       </body>
     </html>
