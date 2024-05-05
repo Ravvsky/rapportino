@@ -1,17 +1,37 @@
+"use server";
 const crypto = require("crypto");
 
-const secretKey = "secret_key";
+const AES_KEY = process.env.AES_KEY;
+const SALT = process.env.SALT;
 
-export function encrypt(data: string) {
-  const cipher = crypto.createCipher("aes-256-cbc", secretKey);
-  let encrypted = cipher.update(data, "utf-8", "hex");
-  encrypted += cipher.final("hex");
-  return encrypted;
+export async function encrypt(text: string) {
+  if (!AES_KEY || !SALT) {
+    throw new Error("AES key or salt not provided.");
+  }
+
+  const key = crypto.scryptSync(AES_KEY, SALT, 32);
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv("aes-256-ctr", key, iv);
+  const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+  return iv.toString("hex") + ":" + encrypted.toString("hex");
 }
 
-export function decrypt(encryptedData: string) {
-  const decipher = crypto.createDecipher("aes-256-cbc", secretKey);
-  let decrypted = decipher.update(encryptedData, "hex", "utf-8");
-  decrypted += decipher.final("utf-8");
-  return decrypted;
+export async function decrypt(text: string) {
+  if (!AES_KEY || !SALT) {
+    throw new Error("AES key or salt not provided.");
+  }
+
+  const key = crypto.scryptSync(AES_KEY, SALT, 32);
+  const parts = text.split(":");
+  if (parts.length !== 2) {
+    throw new Error("Invalid encrypted text format.");
+  }
+  const iv = Buffer.from(parts.shift() || "", "hex"); // Handle possible undefined
+  const encryptedText = Buffer.from(parts.join(":"), "hex");
+  const decipher = crypto.createDecipheriv("aes-256-ctr", key, iv);
+  const decrypted = Buffer.concat([
+    decipher.update(encryptedText),
+    decipher.final(),
+  ]);
+  return decrypted.toString();
 }
