@@ -18,8 +18,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const encryptedUser = cookies().get("user")?.value;
-  const decryptedUser = encryptedUser && decrypt(encryptedUser);
-  const user = decryptedUser && JSON.parse(decryptedUser).email;
+  const decryptedUser = encryptedUser && (await decrypt(encryptedUser));
+  const user = decryptedUser && JSON.parse(decryptedUser).userID;
   return (
     <html lang="en">
       <body className={inter.className + " dark "}>
