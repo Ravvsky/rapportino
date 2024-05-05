@@ -17,7 +17,15 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
-const Page = ({ params }: { params: { slug: string } }) => {
+import { PrismaClient } from "@prisma/client";
+import ReportTable from "@/components/ReportTable";
+import getLoggedUserID from "@/app/_actions/getLoggedUserID";
+
+const Page = async ({ params }: { params: { slug: string } }) => {
+  const user = await getLoggedUserID();
+  const prisma = new PrismaClient();
+
+  prisma.$connect();
   const days = [
     "Sunday",
     "Monday",
@@ -50,7 +58,7 @@ const Page = ({ params }: { params: { slug: string } }) => {
     params && params.slug && params.slug[1]
       ? +params.slug[1]
       : date.getFullYear();
-  console.log(year);
+
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   const daysArray = Array.from({ length: daysInMonth }, (_, index) => {
@@ -70,6 +78,21 @@ const Page = ({ params }: { params: { slug: string } }) => {
   const nextMonthIndex = month === 11 ? 0 : month + 1;
   const nextYear = month === 11 ? year + 1 : year;
   const nextMonthString = months[nextMonthIndex];
+
+  const userReport = await prisma.report.findMany({
+    where: {
+      AND: [
+        { userId: user },
+        {
+          date: {
+            gte: new Date(Date.UTC(year, month, 1)),
+            lte: new Date(Date.UTC(year, month + 1, 0)),
+          },
+        },
+      ],
+    },
+  });
+
   return (
     <div className="container flex flex-col gap-6">
       <p className="text-3xl font-medium">
@@ -79,10 +102,16 @@ const Page = ({ params }: { params: { slug: string } }) => {
         <div className="text-xl font-medium">Worked hours: 168</div>
         <div className="flex gap-4">
           {" "}
-          <Link href={`/reports/${previousMonthString}/${previousYear}`}>
+          <Link
+            href={`/reports/${previousMonthString}/${previousYear}`}
+            prefetch={false}
+          >
             <Button variant={"outline"}>Previous month</Button>
           </Link>
-          <Link href={`/reports/${nextMonthString}/${nextYear}`}>
+          <Link
+            href={`/reports/${nextMonthString}/${nextYear}`}
+            prefetch={false}
+          >
             <Button variant={"outline"}>Next month</Button>
           </Link>
         </div>
@@ -97,6 +126,11 @@ const Page = ({ params }: { params: { slug: string } }) => {
           </TableRow>
         </TableHeader>
         {daysArray.map((day, index) => {
+          const matchingDay = userReport.find((item) => {
+            const date = new Date(item.date);
+            return date.getDate() === index + 1;
+          });
+
           return (
             <TableBody key={index}>
               <TableRow className={day.isWeekend ? "bg-muted" : ""}>
@@ -104,7 +138,14 @@ const Page = ({ params }: { params: { slug: string } }) => {
                   {index < 9 ? `0${index + 1}` : index + 1}
                 </TableCell>
                 <TableCell>
-                  <Input type="text" />
+                  <ReportTable
+                    userID={user}
+                    year={year}
+                    month={month}
+                    dayOfMonth={index + 1}
+                    workedHours={matchingDay ? matchingDay.workedHours : 0}
+                    monthName={months[month]}
+                  />
                 </TableCell>
                 <TableCell className="w-[70%]">
                   <Input type="text" />
