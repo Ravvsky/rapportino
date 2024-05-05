@@ -4,12 +4,14 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 
 const ReportTable = ({
+  userID,
   year,
   month,
   monthName,
   dayOfMonth,
   workedHours,
 }: {
+  userID: number;
   year: number;
   month: number;
   monthName: string;
@@ -23,7 +25,14 @@ const ReportTable = ({
       value={value}
       onChange={(e) => setValue(+e.target.value)}
       onBlur={async (e) => {
-        upsertReport(1, year, month, monthName, +e.target.value, dayOfMonth);
+        upsertReport(
+          userID,
+          year,
+          month,
+          monthName,
+          +e.target.value,
+          dayOfMonth
+        );
       }}
     />
   );
