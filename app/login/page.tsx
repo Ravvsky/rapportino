@@ -8,23 +8,46 @@ import { useState } from "react";
 import loginImage from "@/assets/images/image.png";
 import Image from "next/image";
 import Link from "next/link";
+import { Field, Form, Formik, FormikHelpers } from "formik";
+import * as Yup from "yup";
+import { authUser } from "../_services/userServices/authUser";
 import { handleLogin } from "../_actions/handleLogin";
+
 const Page = () => {
   const [isPasswordFieldVisible, setIsPasswordFieldVisible] = useState(false);
-  const formSubmitHandler = async (e: {
-    preventDefault: () => void;
-    currentTarget: HTMLFormElement | undefined;
-  }) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email");
-    const password = formData.get("password");
+  const formSubmitHandler = async (
+    values: { email: any; password: any },
+    actions: FormikHelpers<{ email: string; password: string }>
+  ) => {
+    const { email, password } = values; // Destructure email and password from values object
+    actions.validateForm();
+    if (email === "") {
+      return;
+    }
     if (isPasswordFieldVisible) {
-      handleLogin(JSON.stringify({ email: email, password: password }));
+      if (email !== null && email !== undefined) {
+        await authUser(email, password).then((res) => {
+          if (res) {
+            handleLogin(JSON.stringify({ userID: res.id }));
+          } else {
+            actions.setStatus("auth_failed");
+          }
+        });
+      }
     } else {
       setIsPasswordFieldVisible(true);
     }
   };
+  const SignupSchema = Yup.object().shape({
+    email: Yup.string().email("Invalid email").required("Required"),
+    password: Yup.lazy(() => {
+      if (isPasswordFieldVisible) {
+        return Yup.string().required("Password is required");
+      }
+
+      return Yup.string().notRequired();
+    }),
+  });
   return (
     <div className="h-screen flex justify-center dark ">
       <div className=" bg-neutral-900 flex flex-col justify-center flex-1 items-center">
@@ -36,17 +59,46 @@ const Page = () => {
           <p className="text-sm text-muted-foreground">
             Enter your email below to login
           </p>
-          <form className="flex flex-col gap-4" onSubmit={formSubmitHandler}>
-            <Input type="email" id="email" placeholder="Email" name="email" />
-            <Input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Password"
-              className={`${isPasswordFieldVisible ? "" : "hidden"}`}
-            />
-            <Button type="submit">Continue</Button>
-          </form>
+          <Formik
+            initialValues={{ email: "", password: "" }}
+            validationSchema={SignupSchema}
+            onSubmit={(values, actions) => formSubmitHandler(values, actions)}
+          >
+            {({ errors, touched, status }) => (
+              <Form className="flex flex-col gap-4">
+                <Field
+                  name="email"
+                  placeholder="Email"
+                  type="email"
+                  as={Input}
+                ></Field>
+                {errors.email && touched.email ? (
+                  <p className="p-0 text-sm text-muted-foreground text-red-700">
+                    {errors.email}
+                  </p>
+                ) : null}
+                <Field
+                  name="password"
+                  placeholder="Password"
+                  type="password"
+                  as={Input}
+                  className={`${isPasswordFieldVisible ? "" : "hidden"}`}
+                ></Field>
+                {errors.password && touched.password ? (
+                  <p className="p-0 text-sm text-muted-foreground text-red-700">
+                    {errors.password}
+                  </p>
+                ) : null}
+
+                {status === "auth_failed" && (
+                  <p className="p-0 text-sm text-muted-foreground text-red-700">
+                    Wrong password or e-mail address
+                  </p>
+                )}
+                <Button type="submit">Continue</Button>
+              </Form>
+            )}
+          </Formik>
           <div className="flex gap-2 items-center justify-center">
             <Separator className=" shrink" />
             <p className="shrink-0 uppercase text-xs py-2 text-muted-foreground">
@@ -59,8 +111,8 @@ const Page = () => {
             Google
           </Button>
           <p className="p-0 text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link href={"#"}>
+            Don&apos;t have an account?
+            <Link href={"/sign-up"}>
               <Button type="button" variant="link" className="p-0 ">
                 Sign up!
               </Button>
