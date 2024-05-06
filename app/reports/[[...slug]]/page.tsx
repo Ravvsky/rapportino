@@ -94,11 +94,11 @@ const Page = async ({ params }: { params: { slug: string } }) => {
   });
 
   return (
-    <div className="container flex flex-col gap-6">
-      <p className="text-3xl font-medium">
+    <div className="container flex flex-col gap-6 py-4 md:py-10">
+      <h1 className="text-3xl font-semibold px-4 md:px-10">
         {months[month]} {year}
-      </p>
-      <div className="flex justify-between">
+      </h1>
+      <div className="flex justify-between px-4 md:px-10">
         <div className="text-xl font-medium">Worked hours: 168</div>
         <div className="flex gap-4">
           {" "}
@@ -116,58 +116,60 @@ const Page = async ({ params }: { params: { slug: string } }) => {
           </Link>
         </div>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[5%]">Day</TableHead>
-            <TableHead className="w-[10%]">Worked hours</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead className="ht">Category</TableHead>
-          </TableRow>
-        </TableHeader>
-        {daysArray.map((day, index) => {
-          const matchingDay = userReport.find((item) => {
-            const date = new Date(item.date);
-            return date.getDate() === index + 1;
-          });
+      <div className="px-4 md:px-10">
+        <Table className=" px-4 md:px-10">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[5%]">Day</TableHead>
+              <TableHead className="w-[10%]">Worked hours</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead className="ht">Category</TableHead>
+            </TableRow>
+          </TableHeader>
+          {daysArray.map((day, index) => {
+            const matchingDay = userReport.find((item) => {
+              const date = new Date(item.date);
+              return date.getDate() === index + 1;
+            });
 
-          return (
-            <TableBody key={index}>
-              <TableRow className={day.isWeekend ? "bg-muted" : ""}>
-                <TableCell className="font-medium w-[5%]">
-                  {index < 9 ? `0${index + 1}` : index + 1}
-                </TableCell>
-                <TableCell>
-                  <ReportTable
-                    userID={user}
-                    year={year}
-                    month={month}
-                    dayOfMonth={index + 1}
-                    workedHours={matchingDay ? matchingDay.workedHours : 0}
-                    monthName={months[month]}
-                  />
-                </TableCell>
-                <TableCell className="w-[70%]">
-                  <Input type="text" />
-                </TableCell>
-                <TableCell className=" text-right">
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Theme" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="light">Features</SelectItem>
-                      <SelectItem value="dark">Fix</SelectItem>
-                      <SelectItem value="system">Legacy</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          );
-        })}
-      </Table>
+            return (
+              <TableBody key={index}>
+                <TableRow className={day.isWeekend ? "bg-muted" : ""}>
+                  <TableCell className="font-medium w-[5%]">
+                    {index < 9 ? `0${index + 1}` : index + 1}
+                  </TableCell>
+                  <TableCell>
+                    <ReportTable
+                      userID={user}
+                      year={year}
+                      month={month}
+                      dayOfMonth={index + 1}
+                      workedHours={matchingDay ? matchingDay.workedHours : 0}
+                      monthName={months[month]}
+                    />
+                  </TableCell>
+                  <TableCell className="w-[70%]">
+                    <Input type="text" />
+                  </TableCell>
+                  <TableCell className=" text-right">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Theme" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="light">Features</SelectItem>
+                        <SelectItem value="dark">Fix</SelectItem>
+                        <SelectItem value="system">Legacy</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            );
+          })}
+        </Table>
+      </div>
     </div>
   );
 };
