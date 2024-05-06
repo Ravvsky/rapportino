@@ -9,7 +9,7 @@ import loginImage from "@/assets/images/image.png";
 import Image from "next/image";
 import Link from "next/link";
 import { getUser } from "../_services/userServices/getUser";
-import { Field, Form, Formik, FormikHelpers, FormikValues } from "formik";
+import { Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { createUser } from "../_services/userServices/createUser";
 
@@ -20,13 +20,12 @@ const Page = () => {
     values: { email: any; password: any },
     actions: FormikHelpers<{ email: string; password: string }>
   ) => {
-    const { email, password } = values; // Destructure email and password from values object
+    const { email, password } = values;
     actions.validateForm();
     if (email === "") {
       return;
     }
     if (isPasswordFieldVisible) {
-      //   handleLogin(JSON.stringify({ email: email, password: password }));
       createUser(email, password);
       setIsAccountCreated(true);
     } else {
