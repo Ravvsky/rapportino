@@ -31,19 +31,16 @@ import Link from "next/link";
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { handleLogout } from "@/app/_actions/handleLogout";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { Icons } from "@/components/icons";
 import { usePathname } from "next/navigation";
 
 const Navigation = () => {
@@ -122,11 +119,15 @@ const Navigation = () => {
                 <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
               </Link>
             </DropdownMenuItem>
-
             <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+              <Link
+                href="/settings"
+                className="w-full h-full flex items-center"
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
