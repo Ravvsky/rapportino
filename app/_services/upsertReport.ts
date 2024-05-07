@@ -1,8 +1,9 @@
 "use server";
-import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import prisma from "../_utils/prisma";
+// import PrismaSingleton from "../_utils/prisma";
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaSingleton();
 
 const upsertReport = async (
   userId: number,

@@ -1,28 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 
-class PrismaSingleton {
-  private static instance: PrismaSingleton | null = null;
-  private prisma: PrismaClient;
+const prismaClientSingleton = () => {
+  return new PrismaClient();
+};
 
-  // Make the constructor public
-  public constructor() {
-    this.prisma = new PrismaClient();
-  }
+declare const globalThis: {
+  prismaGlobal: ReturnType<typeof prismaClientSingleton>;
+} & typeof global;
 
-  public static getInstance(): PrismaSingleton {
-    if (!PrismaSingleton.instance) {
-      PrismaSingleton.instance = new PrismaSingleton();
-    }
-    return PrismaSingleton.instance;
-  }
+const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
 
-  // Make the class callable
-  public call(): PrismaClient {
-    return this.prisma;
-  }
-}
+export default prisma;
 
-// Inherit types from PrismaClient
-interface PrismaSingleton extends PrismaClient {}
-
-export default PrismaSingleton;
+if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prisma;
