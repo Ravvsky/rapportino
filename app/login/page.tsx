@@ -12,25 +12,18 @@ import { Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { authUser } from "../_services/userServices/authUser";
 import { handleLogin } from "../_actions/handleLogin";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
-import validateTOTPToken from "../_actions/validateTOTPToken";
+
+import InputOTPForm from "./InputOTPForm";
 
 const Page = () => {
   const [isPasswordFieldVisible, setIsPasswordFieldVisible] = useState(false);
   const [is2FAEnable, setIs2FAEnabled] = useState(false);
-  const [OTPInputValue, setOTPInputValue] = useState("");
-  const [test, setTest] = useState("");
-  const [userID, setUserID] = useState(0);
+
   const formSubmitHandler = async (
     values: { email: any; password: any },
     actions: FormikHelpers<{ email: string; password: string }>
   ) => {
-    const { email, password } = values; // Destructure email and password from values object
+    const { email, password } = values;
     actions.validateForm();
     if (email === "") {
       return;
@@ -38,8 +31,9 @@ const Page = () => {
     if (isPasswordFieldVisible) {
       if (email !== null && email !== undefined) {
         await authUser(email, password).then((res) => {
+          console.log(res);
           if (res) {
-            if (!res.TOTPSecret || res.TOTPSecret.length < 1) {
+            if (!res.TOTPSecret) {
               handleLogin(
                 JSON.stringify({
                   userID: res.id,
@@ -47,8 +41,6 @@ const Page = () => {
                 })
               );
             } else if (res.TOTPSecret) {
-              setTest(res.TOTPSecret);
-              setUserID(res.id);
               setIs2FAEnabled(true);
             }
           } else {
@@ -143,54 +135,7 @@ const Page = () => {
             </p>
           </div>
         )}
-        {is2FAEnable && (
-          <div className="flex flex-col  gap-4">
-            <h1 className="text-2xl font-medium">Two-factor authentication</h1>
-            <p className="text-sm text-muted-foreground">
-              Your account has enabled two factor authentication.
-            </p>
-            <p>Enter code from your authenticator app to login</p>
-
-            <div className="flex justify-center">
-              <InputOTP
-                maxLength={6}
-                onChange={(value) => setOTPInputValue(value)}
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                </InputOTPGroup>
-                <InputOTPSeparator />
-                <InputOTPGroup>
-                  <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
-            <Button
-              type="button"
-              variant="default"
-              className="p-0"
-              onClick={() => {
-                validateTOTPToken(test, OTPInputValue, true).then((res) => {
-                  console.log(res);
-                  if (res !== null) {
-                    handleLogin(
-                      JSON.stringify({
-                        userID: userID,
-                        is2FAEnabled: true,
-                      })
-                    );
-                  }
-                });
-              }}
-            >
-              Verify
-            </Button>
-          </div>
-        )}
+        {is2FAEnable && <InputOTPForm />}
       </div>
     </div>
   );

@@ -5,28 +5,28 @@ import { decrypt } from "../_utils/crypto";
 import { cookies } from "next/headers";
 
 const validateTOTPToken = async (
-  secret: string,
+  secret: string | undefined,
   token: string,
   isLogin: boolean
 ) => {
   const encryptedUser = cookies().get("user")?.value;
   const decryptedUser = encryptedUser && (await decrypt(encryptedUser));
-
+  const encryptedToken = cookies().get("token")?.value;
+  const decryptedToken = encryptedToken && (await decrypt(encryptedToken));
   const user = decryptedUser && JSON.parse(decryptedUser).userID;
-  console.log("USER ID ", user);
+
+  secret = secret ? secret : decryptedToken && JSON.parse(decryptedToken).token;
+
+  if (!secret) {
+    return;
+  }
   let totp = new OTPAuth.TOTP({
-    // Provider or service the account is associated with.
     issuer: "Rapportino App",
-    // Account identifier.
     label: "Rapportino",
-    // Algorithm used for the HMAC function.
     algorithm: "SHA1",
-    // Length of the generated tokens.
     digits: 6,
-    // Interval of time for which a token is valid, in seconds.
     period: 30,
-    // Arbitrary key encoded in Base32.
-    secret: OTPAuth.Secret.fromBase32(secret), // or 'OTPAuth.Secret.fromBase32("NB2W45DFOIZA")'
+    secret: OTPAuth.Secret.fromBase32(secret),
   });
   const delta = totp.validate({ token, window: 1 });
   console.log(delta);

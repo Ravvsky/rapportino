@@ -91,7 +91,6 @@ const Page = async ({ params }: { params: { slug: string } }) => {
       ],
     },
   });
-  console.log(userReport);
   return (
     <div className="container flex flex-col gap-6 py-4 md:py-10">
       <h1 className="text-3xl font-semibold px-4 md:px-10">
