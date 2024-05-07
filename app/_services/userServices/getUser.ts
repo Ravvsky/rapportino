@@ -1,8 +1,8 @@
 "use server";
-import { PrismaClient } from "@prisma/client";
+import PrismaSingleton from "@/app/_utils/prisma";
 
 export async function getUser(email: string) {
-  const prisma = new PrismaClient();
+  const prisma = new PrismaSingleton();
 
   return await prisma.user.findFirst({ where: { email: email } });
 }

@@ -17,13 +17,13 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
-import { PrismaClient } from "@prisma/client";
 import ReportTable from "@/components/ReportTable";
 import getLoggedUserID from "@/app/_actions/getLoggedUserID";
+import PrismaSingleton from "@/app/_utils/prisma";
 
 const Page = async ({ params }: { params: { slug: string } }) => {
   const user = await getLoggedUserID();
-  const prisma = new PrismaClient();
+  const prisma = new PrismaSingleton();
 
   prisma.$connect();
   const days = [
