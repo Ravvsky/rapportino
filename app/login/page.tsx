@@ -14,6 +14,7 @@ import { authUser } from "../_services/userServices/authUser";
 import { handleLogin } from "../_actions/handleLogin";
 
 import InputOTPForm from "./InputOTPForm";
+import loginWithGoogle from "../_actions/loginWithGoogle";
 
 const Page = () => {
   const [isPasswordFieldVisible, setIsPasswordFieldVisible] = useState(false);
@@ -121,7 +122,13 @@ const Page = () => {
               </p>
               <Separator className=" shrink" />
             </div>
-            <Button type="button" variant="secondary">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                loginWithGoogle();
+              }}
+            >
               <Icons.google className="mr-2 h-4 w-4" />
               Google
             </Button>
