@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/ui/navigation";
 import getLoggedUserID from "./_actions/getLoggedUserID";
+import { auth } from "@/auth";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -16,10 +17,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getLoggedUserID();
+  const OAuthSession = await auth();
   return (
     <html lang="en">
       <body className={inter.className + " dark "}>
-        {user && <Navigation />}
+        {(user || OAuthSession) && <Navigation />}
         {children}
       </body>
     </html>

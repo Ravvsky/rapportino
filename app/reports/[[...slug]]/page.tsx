@@ -19,12 +19,10 @@ import Link from "next/link";
 
 import ReportTable from "@/components/ReportTable";
 import getLoggedUserID from "@/app/_actions/getLoggedUserID";
-import PrismaSingleton from "@/app/_utils/prisma";
 import prisma from "@/app/_utils/prisma";
 
 const Page = async ({ params }: { params: { slug: string } }) => {
   const user = await getLoggedUserID();
-
   const days = [
     "Sunday",
     "Monday",

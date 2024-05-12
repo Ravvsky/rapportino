@@ -1,5 +1,4 @@
 "use server";
-
 import { cookies } from "next/headers";
 import { decrypt, encrypt } from "../_utils/crypto";
 import { redirect } from "next/navigation";
@@ -10,7 +9,7 @@ export async function handleLogin(sessionData: string) {
   const userObj = decryptedUser && JSON.parse(decryptedUser);
   const objectToEncrypt = {
     is2FAEnabled: sessionDataObj.is2FAEnabled,
-    userID: userObj.user,
+    userID: userObj?.user || sessionDataObj,
   };
   const encryptedSessionData = await encrypt(JSON.stringify(objectToEncrypt));
 
