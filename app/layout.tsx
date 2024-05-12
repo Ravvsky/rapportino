@@ -4,6 +4,7 @@ import "./globals.css";
 import Navigation from "@/components/ui/navigation";
 import getLoggedUserID from "./_actions/getLoggedUserID";
 import { auth } from "@/auth";
+import { getUserByID } from "./_services/userServices/getUserByID";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -16,12 +17,27 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getLoggedUserID();
+  const userID = await getLoggedUserID();
   const OAuthSession = await auth();
+  const user = !OAuthSession && (await getUserByID(userID));
+  const userName =
+    (OAuthSession && OAuthSession.user && OAuthSession.user.name) ||
+    (user && user.name) ||
+    "";
+
+  const profileInitials = userName
+    .split(" ")
+    .map((word: string) => word[0])
+    .join("");
   return (
     <html lang="en">
       <body className={inter.className + " dark "}>
-        {(user || OAuthSession) && <Navigation />}
+        {(userID || OAuthSession) && (
+          <Navigation
+            profilePicture={OAuthSession?.user?.image ?? undefined}
+            profileInitials={profileInitials}
+          />
+        )}
         {children}
       </body>
     </html>

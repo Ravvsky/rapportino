@@ -43,7 +43,13 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 
-const Navigation = () => {
+const Navigation = ({
+  profilePicture = "https://github.com/ravvsky.png",
+  profileInitials = "",
+}: {
+  profilePicture?: string;
+  profileInitials?: string;
+}) => {
   const components: { title: string; href: string; description: string }[] = [
     {
       title: "Your days off",
@@ -104,8 +110,8 @@ const Navigation = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Avatar className="cursor-pointer">
-            <AvatarImage src="https://github.com/ravvsky.png" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage src={profilePicture} alt="@shadcn" />
+            <AvatarFallback>{profileInitials}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
