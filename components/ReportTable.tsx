@@ -11,7 +11,7 @@ const ReportTable = ({
   dayOfMonth,
   workedHours,
 }: {
-  userID: number;
+  userID: string;
   year: number;
   month: number;
   monthName: string;
