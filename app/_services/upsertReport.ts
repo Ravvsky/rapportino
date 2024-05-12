@@ -1,12 +1,9 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import prisma from "../_utils/prisma";
-// import PrismaSingleton from "../_utils/prisma";
-
-// const prisma = new PrismaSingleton();
 
 const upsertReport = async (
-  userId: number,
+  userId: string,
   year: number,
   month: number,
   monthName: string,
