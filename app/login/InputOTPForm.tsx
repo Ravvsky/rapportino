@@ -21,7 +21,23 @@ const InputOTPForm = () => {
       </p>
       <p>Enter code from your authenticator app to login</p>
 
-      <div className="flex justify-center">
+      <form
+        className="flex justify-center"
+        onSubmit={(e) => {
+          e.preventDefault();
+          validateTOTPToken(undefined, OTPInputValue, true).then((res) => {
+            if (res !== null) {
+              handleLogin(
+                JSON.stringify({
+                  is2FAEnabled: true,
+                })
+              );
+            } else {
+              setIsCodeWrong(true);
+            }
+          });
+        }}
+      >
         <InputOTP
           maxLength={6}
           onChange={(value) => {
@@ -40,30 +56,13 @@ const InputOTPForm = () => {
             <InputOTPSlot index={5} />
           </InputOTPGroup>
         </InputOTP>
-      </div>
+      </form>
       {isCodeWrong && (
         <p className="p-0 text-sm text-muted-foreground text-red-700">
           Code you enetered is wrong.
         </p>
       )}
-      <Button
-        type="button"
-        variant="default"
-        className="p-0"
-        onClick={() => {
-          validateTOTPToken(undefined, OTPInputValue, true).then((res) => {
-            if (res !== null) {
-              handleLogin(
-                JSON.stringify({
-                  is2FAEnabled: true,
-                })
-              );
-            } else {
-              setIsCodeWrong(true);
-            }
-          });
-        }}
-      >
+      <Button type="submit" variant="default" className="p-0">
         Verify
       </Button>
     </div>
