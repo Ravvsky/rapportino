@@ -8,7 +8,7 @@ import { useState } from "react";
 import loginImage from "@/assets/images/image.png";
 import Image from "next/image";
 import Link from "next/link";
-import { getUser } from "../_services/userServices/getUser";
+import { getUserByEmail } from "../_services/userServices/getUserByEmail";
 import { Field, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { createUser } from "../_services/userServices/createUser";
@@ -30,7 +30,7 @@ const Page = () => {
       setIsAccountCreated(true);
     } else {
       if (email !== null && email !== undefined) {
-        const userExists = await getUser(email);
+        const userExists = await getUserByEmail(email);
         if (userExists) {
           actions.setFieldError(
             "email",
