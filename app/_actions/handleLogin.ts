@@ -9,7 +9,7 @@ export async function handleLogin(sessionData: string) {
   const userObj = decryptedUser && JSON.parse(decryptedUser);
   const objectToEncrypt = {
     is2FAEnabled: sessionDataObj.is2FAEnabled,
-    userID: userObj?.user || sessionDataObj,
+    userID: userObj?.user || sessionDataObj.userID,
   };
   const encryptedSessionData = await encrypt(JSON.stringify(objectToEncrypt));
 
