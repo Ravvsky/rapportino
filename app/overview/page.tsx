@@ -23,10 +23,6 @@ import {
 } from "@/components/ui/carousel";
 
 const Page = () => {
-  // <div className="pt-6 pb-4">Planned days off</div>
-  // <CardDescription>
-  //   You have not planned any days off
-  // </CardDescription>
   return (
     <div className="container grid grid-cols-3 gap-4">
       <Card className="col-span-3">
