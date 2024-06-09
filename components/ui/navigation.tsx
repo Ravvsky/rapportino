@@ -1,6 +1,7 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  Bell,
   Github,
   LogOut,
   Mail,
@@ -41,8 +42,15 @@ import { handleLogout } from "@/app/_actions/handleLogout";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
-
+import { usePathname, useRouter } from "next/navigation";
+import { Button } from "./button";
+import { Dialog, DialogTrigger } from "./dialog";
+import { createTeam } from "@/app/_services/teamServices/createTeam";
+import { FormikHelpers } from "formik";
+import * as Yup from "yup";
+import { useToast } from "./use-toast";
+import { useState } from "react";
+import CreateTeamDialogContent from "../CreateTeamDialogContent";
 const Navigation = ({
   profilePicture = "https://github.com/ravvsky.png",
   profileInitials = "",
@@ -63,6 +71,9 @@ const Navigation = ({
     },
   ];
   const pathname = usePathname();
+
+  const [open, setOpen] = useState(false);
+
   return (
     <div className=" flex justify-between py-6 container">
       {" "}
@@ -107,90 +118,113 @@ const Navigation = ({
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Avatar className="cursor-pointer">
-            <AvatarImage src={profilePicture} alt="@shadcn" />
-            <AvatarFallback>{profileInitials}</AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Link href="/profile" className="w-full h-full flex items-center">
-                <User className="mr-2 h-4 w-4" />
-                Profile
-                <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link
-                href="/settings"
-                className="w-full h-full flex items-center"
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <Users className="mr-2 h-4 w-4" />
-              <span>Team</span>
-            </DropdownMenuItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <UserPlus className="mr-2 h-4 w-4" />
-                <span>Invite users</span>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem>
-                    <Mail className="mr-2 h-4 w-4" />
-                    <span>Email</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    <span>Message</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    <span>More...</span>
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-            <DropdownMenuItem>
-              <Plus className="mr-2 h-4 w-4" />
-              <span>New Team</span>
-              <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Github className="mr-2 h-4 w-4" />
-            <span>GitHub</span>
-          </DropdownMenuItem>
+      <div className="flex gap-8 items-center">
+        <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
+          <Bell className="h-4 w-4" />
+          <span className="sr-only">Toggle notifications</span>
+        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="cursor-pointer">
+                <AvatarImage src={profilePicture} alt="@shadcn" />
+                <AvatarFallback>{profileInitials}</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Link
+                    href="/profile"
+                    className="w-full h-full flex items-center"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link
+                    href="/settings"
+                    className="w-full h-full flex items-center"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <Link
+                    href="/teams"
+                    className="w-full h-full flex items-center"
+                  >
+                    <Users className="mr-2 h-4 w-4" />
+                    <span>Teams</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    <span>Invite users</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem>
+                        <Mail className="mr-2 h-4 w-4" />
+                        <span>Email</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        <span>Message</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <span>More...</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+                <DropdownMenuItem>
+                  <DialogTrigger className="flex">
+                    <Plus className="mr-2 h-4 w-4" />
+                    <span>New Team</span>
+                  </DialogTrigger>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Github className="mr-2 h-4 w-4" />
+                <span>GitHub</span>
+              </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <button
-              className="w-full h-full flex items-center"
-              onClick={() => handleLogout()}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <button
+                  className="w-full h-full flex items-center"
+                  onClick={() => handleLogout()}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
 
-              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-            </button>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+                  <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                </button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <CreateTeamDialogContent
+            onIsOpenChange={() => {
+              setOpen(!open);
+            }}
+          />
+        </Dialog>
+      </div>
     </div>
   );
 };
