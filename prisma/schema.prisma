@@ -8,11 +8,14 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(cuid())
-  email      String   @unique
-  password   String
-  TOTPSecret String?
-  reports    Report[]
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  TOTPSecret    String?
+  reports       Report[]
+  memberOfTeams Team[]   @relation("UserTeams")
+  ownerOfTeams  Team[]   @relation("TeamOwners")
+  role          Role     @default(USER)
 
   //NextAuth
   name          String?
@@ -20,6 +23,19 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+}
+
+model Team {
+  id      Int    @id @default(autoincrement())
+  name    String
+  owners  User[] @relation("TeamOwners")
+  members User[] @relation("UserTeams")
+}
+
+enum Role {
+  USER
+  ADMIN
+  TEAM_MANAGER
 }
 
 model Report {
