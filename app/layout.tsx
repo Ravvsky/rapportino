@@ -5,6 +5,7 @@ import Navigation from "@/components/ui/navigation";
 import getLoggedUserID from "./_actions/getLoggedUserID";
 import { auth } from "@/auth";
 import { getUserByID } from "./_services/userServices/getUserByID";
+import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default async function RootLayout({
     .join("");
   return (
     <html lang="en">
-      <body className={inter.className + " dark "}>
+      <body className={inter.className + " dark min-h-screen flex flex-col"}>
         {(userID || OAuthSession) && (
           <Navigation
             profilePicture={OAuthSession?.user?.image ?? undefined}
@@ -39,6 +40,7 @@ export default async function RootLayout({
           />
         )}
         {children}
+        <Toaster />
       </body>
     </html>
   );
