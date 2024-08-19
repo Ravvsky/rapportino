@@ -1,25 +1,38 @@
 import getLoggedUserID from "@/app/_actions/getLoggedUserID";
 import prisma from "@/app/_utils/prisma";
-import { cache } from "react";
+import { getUserByID } from "../userServices/getUserByID";
 
-export const getTeamByID = cache(async (id: number) => {
+export async function getTeamByID(id: number) {
   const userId = await getLoggedUserID();
-  console.log(new Date());
-  return await prisma.team.findFirst({
+  const team = await prisma.team.findFirst({
     where: {
       id: id,
       AND: [
         {
-          OR: [
-            { owners: { some: { id: userId } } },
-            { members: { some: { id: userId } } },
-          ],
+          members: {
+            some: {
+              userId: userId,
+            },
+          },
         },
       ],
     },
     include: {
-      owners: true,
       members: true,
     },
   });
-});
+  if (!team) {
+    return null;
+  }
+  const membersWithUserData = await Promise.all(
+    team.members.map(async (member) => {
+      const userData = await getUserByID(member.userId);
+      return { ...member, email: userData?.email, name: userData?.name };
+    })
+  );
+
+  return {
+    ...team,
+    members: membersWithUserData,
+  };
+}
