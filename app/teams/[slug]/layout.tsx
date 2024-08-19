@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import TeamSettingsNavigation from "../_components/TeamSettingsNavigation";
 import TeamSettingsTitle from "../_components/TeamSettingsTitle";
 
@@ -17,6 +18,7 @@ export default function Layout({
           <div className="grid gap-6 ">{children}</div>
         </div>
       </main>
+      <Toaster />
     </div>
   );
 }
