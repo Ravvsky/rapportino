@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { getUserTeam } from "../_services/teamServices/getUserTeam";
+import { getUserTeams } from "../_services/teamServices/getUserTeams";
 import Link from "next/link";
 import CreateTeamDialog from "./_components/CreateTeamDialog";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -8,7 +8,7 @@ import getLoggedUserID from "../_actions/getLoggedUserID";
 import { Team, UserTeam } from "@prisma/client";
 
 const Page = async () => {
-  const teamsList = await getUserTeam();
+  const teamsList = await getUserTeams();
   const userId = await getLoggedUserID();
   const [invitationsPresent, invitationsAbsent] = teamsList.reduce<
     [Team[], Team[]]
