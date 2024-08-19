@@ -20,6 +20,7 @@
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toast": "^1.1.5",
+    "@react-email/components": "0.0.19",
     "@types/bcrypt": "^5.0.2",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
@@ -46,6 +47,7 @@
   "devDependencies": {
     "@prisma/client": "^5.13.0",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.15",
     "@types/pg": "^8.11.4",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18",
