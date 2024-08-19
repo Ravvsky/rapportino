@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 const Page = async ({ params }: { params: { slug: string } }) => {
   const teamID = +params.slug.split("-")[1];
-  const teamName = params.slug.split("-")[0];
   const team = await getTeamByID(teamID).catch(() => {
     notFound();
   });
