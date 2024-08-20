@@ -1,6 +1,7 @@
 "use client";
 
 import { acceptInvitation } from "@/app/_services/teamServices/acceptInvitation";
+import { cancelInvitation } from "@/app/_services/teamServices/cancelInvitation";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -44,6 +45,7 @@ const TeamPendingInvitation = ({
             <Button
               variant={"destructive"}
               onClick={async () => {
+                await cancelInvitation();
                 toast({
                   title: `You declined invitation to team ${teamName}`,
                 });
