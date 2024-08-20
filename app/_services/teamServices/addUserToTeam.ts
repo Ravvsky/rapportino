@@ -8,7 +8,7 @@ export async function addUserToTeam(userId: string, teamId: number) {
     data: {
       userId: userId,
       teamId: teamId,
-      isInvited: false,
+      isInvited: true,
     },
   });
 }
