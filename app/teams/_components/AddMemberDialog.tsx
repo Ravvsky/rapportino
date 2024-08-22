@@ -1,8 +1,10 @@
 "use client";
 
 import sendEmail from "@/app/_actions/sendEmail";
+import { createNotification } from "@/app/_services/notificationServices/createNotification";
 import { addUserToTeam } from "@/app/_services/teamServices/addUserToTeam";
 import { getUserByEmail } from "@/app/_services/userServices/getUserByEmail";
+import { useSocket } from "@/app/context/SocketContext";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,6 +31,8 @@ const AddMemberDialog = ({
   const [open, setOpen] = useState(false);
 
   const formRef = useRef<FormikProps<{ email: string; role: string }>>(null);
+  const { socket } = useSocket();
+
   const { toast } = useToast();
   const submitFormHandler = async (values: any, actions: any) => {
     actions.validateForm();
@@ -44,6 +48,12 @@ const AddMemberDialog = ({
         if (res) {
           setOpen(!open);
           await addUserToTeam(invitedUserID?.id, teamID);
+          createNotification(invitedUserID?.id, "title", "description", "url");
+          socket.emit(
+            "notification",
+            `You have been invited to ${teamID}`,
+            invitedUserID?.id
+          );
 
           toast({ title: "Your invitation has been send succesfuly." });
         } else {
