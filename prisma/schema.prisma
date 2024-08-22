@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -8,14 +9,13 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
+  id            String         @id @default(cuid())
+  email         String         @unique
   password      String
   TOTPSecret    String?
   reports       Report[]
-  memberOfTeams Team[]   @relation("UserTeams")
-  ownerOfTeams  Team[]   @relation("TeamOwners")
-  role          Role     @default(USER)
+  role          Role           @default(USER)
+  notifications Notification[]
 
   //NextAuth
   name          String?
@@ -26,10 +26,24 @@ model User {
 }
 
 model Team {
-  id      Int    @id @default(autoincrement())
+  id      Int        @id @default(autoincrement())
   name    String
-  owners  User[] @relation("TeamOwners")
-  members User[] @relation("UserTeams")
+  members UserTeam[] @relation("TeamMembers")
+}
+
+model UserTeam {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  teamId    Int
+  isInvited Boolean  @default(true)
+  role      TeamRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  Team      Team     @relation(fields: [teamId], references: [id], name: "TeamMembers")
+}
+
+enum TeamRole {
+  MEMBER
+  MANAGER
 }
 
 enum Role {
@@ -78,4 +92,16 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  url         String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
 }
