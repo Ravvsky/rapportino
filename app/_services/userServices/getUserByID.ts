@@ -2,5 +2,12 @@
 import prisma from "@/app/_utils/prisma";
 
 export async function getUserByID(id: string) {
-  return await prisma.user.findFirst({ where: { id: id } });
+  return await prisma.user.findFirst({
+    where: { id: id },
+    include: {
+      notifications: {
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
 }
