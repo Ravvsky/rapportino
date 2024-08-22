@@ -45,7 +45,7 @@ const TeamPendingInvitation = ({
             <Button
               variant={"destructive"}
               onClick={async () => {
-                await cancelInvitation();
+                await cancelInvitation(teamID);
                 toast({
                   title: `You declined invitation to team ${teamName}`,
                 });
