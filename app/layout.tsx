@@ -6,6 +6,7 @@ import getLoggedUserID from "./_actions/getLoggedUserID";
 import { auth } from "@/auth";
 import { getUserByID } from "./_services/userServices/getUserByID";
 import { Toaster } from "@/components/ui/toaster";
+import { SocketProvider } from "./context/SocketContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -32,16 +33,19 @@ export default async function RootLayout({
     .join("");
   return (
     <html lang="en">
-      <body className={inter.className + " dark min-h-screen flex flex-col"}>
-        {(userID || OAuthSession) && (
-          <Navigation
-            profilePicture={OAuthSession?.user?.image ?? undefined}
-            profileInitials={profileInitials}
-          />
-        )}
-        {children}
-        <Toaster />
-      </body>
+      <SocketProvider>
+        <body className={inter.className + " dark min-h-screen flex flex-col"}>
+          {(userID || OAuthSession) && (
+            <Navigation
+              profilePicture={OAuthSession?.user?.image ?? undefined}
+              profileInitials={profileInitials}
+              notifications={user.notifications}
+            />
+          )}
+          {children}
+          <Toaster />
+        </body>
+      </SocketProvider>
     </html>
   );
 }
