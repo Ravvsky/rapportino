@@ -2,19 +2,14 @@
 import getLoggedUserID from "@/app/_actions/getLoggedUserID";
 import prisma from "@/app/_utils/prisma";
 
-export async function cancelInvitation(userID?: string) {
+export async function cancelInvitation(teamID: number, userID?: string) {
   const finalUserID = userID || (await getLoggedUserID());
-  const userTeam = await prisma.userTeam.findFirst({
+
+  console.log(teamID);
+  return await prisma.userTeam.deleteMany({
     where: {
+      teamId: teamID,
       userId: finalUserID,
     },
   });
-
-  if (userTeam) {
-    return await prisma.userTeam.delete({
-      where: {
-        id: userTeam.id,
-      },
-    });
-  }
 }
