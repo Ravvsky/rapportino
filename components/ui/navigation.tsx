@@ -49,15 +49,22 @@ import { createTeam } from "@/app/_services/teamServices/createTeam";
 import { FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useToast } from "./use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateTeamDialogContent from "../CreateTeamDialogContent";
+import { Badge } from "./badge";
+import { Notification } from "@prisma/client";
+import { useSocket } from "@/app/context/SocketContext";
+import { getUserNotification } from "@/app/_services/notificationServices/getUserNotifications";
 const Navigation = ({
   profilePicture = "https://github.com/ravvsky.png",
   profileInitials = "",
+  notifications = [],
 }: {
   profilePicture?: string;
   profileInitials?: string;
+  notifications?: Notification[];
 }) => {
+  console.log(notifications);
   const components: { title: string; href: string; description: string }[] = [
     {
       title: "Your days off",
@@ -73,7 +80,22 @@ const Navigation = ({
   const pathname = usePathname();
 
   const [open, setOpen] = useState(false);
+  const [notificationsList, setNotificationsList] = useState(notifications);
+  const { socket } = useSocket();
+  useEffect(() => {
+    if (socket) {
+      const handleMessage = async (msg) => {
+        console.log("Received message:", msg);
+        setNotificationsList(await getUserNotification());
+      };
 
+      socket.on("notification", handleMessage);
+
+      return () => {
+        socket.off("notification", handleMessage);
+      };
+    }
+  }, [socket]);
   return (
     <div className=" flex justify-between py-6 container">
       {" "}
@@ -119,9 +141,18 @@ const Navigation = ({
         </NavigationMenuList>
       </NavigationMenu>
       <div className="flex gap-8 items-center">
-        <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
+        <Button
+          variant="outline"
+          size="icon"
+          className="ml-auto h-8 w-8 relative"
+        >
           <Bell className="h-4 w-4" />
           <span className="sr-only">Toggle notifications</span>
+          {notificationsList.length > 0 && (
+            <div className="absolute bg-red-500 px-2  rounded-full  text-[10px] flex items-center justify-center -top-3 -right-3 transform origin-right">
+              {notificationsList.length}
+            </div>
+          )}
         </Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DropdownMenu>
