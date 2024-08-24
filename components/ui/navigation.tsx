@@ -42,29 +42,16 @@ import { handleLogout } from "@/app/_actions/handleLogout";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Button } from "./button";
 import { Dialog, DialogTrigger } from "./dialog";
-import { createTeam } from "@/app/_services/teamServices/createTeam";
-import { FormikHelpers } from "formik";
-import * as Yup from "yup";
-import { useToast } from "./use-toast";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CreateTeamDialogContent from "../CreateTeamDialogContent";
-import { Badge } from "./badge";
-import { Notification } from "@prisma/client";
 import { useSocket } from "@/app/context/SocketContext";
 import { getUserNotification } from "@/app/_services/notificationServices/getUserNotifications";
-const Navigation = ({
-  profilePicture = "https://github.com/ravvsky.png",
-  profileInitials = "",
-  notifications = [],
-}: {
-  profilePicture?: string;
-  profileInitials?: string;
-  notifications?: Notification[];
-}) => {
-  console.log(notifications);
+import { useUser } from "@/app/context/UserContext";
+import { Notification } from "@prisma/client";
+const Navigation = () => {
   const components: { title: string; href: string; description: string }[] = [
     {
       title: "Your days off",
@@ -78,10 +65,34 @@ const Navigation = ({
     },
   ];
   const pathname = usePathname();
+  const { user } = useUser();
+  const { socket } = useSocket();
+
+  const [notificationsList, setNotificationsList] = useState<
+    Notification[] | null
+  >(null);
+
+  useEffect(() => {
+    console.log(user);
+
+    if (user) {
+      console.log();
+      setNotificationsList(user.notifications);
+    }
+  }, [user]);
+
+  const profileInitials = useMemo(() => {
+    if (user && user.name) {
+      return user.name
+        .split(" ")
+        .map((word) => word[0])
+        .join("");
+    }
+    return "";
+  }, [user]);
 
   const [open, setOpen] = useState(false);
-  const [notificationsList, setNotificationsList] = useState(notifications);
-  const { socket } = useSocket();
+
   useEffect(() => {
     if (socket) {
       const handleMessage = async (msg) => {
@@ -148,7 +159,7 @@ const Navigation = ({
         >
           <Bell className="h-4 w-4" />
           <span className="sr-only">Toggle notifications</span>
-          {notificationsList.length > 0 && (
+          {notificationsList && notificationsList.length > 0 && (
             <div className="absolute bg-red-500 px-2  rounded-full  text-[10px] flex items-center justify-center -top-3 -right-3 transform origin-right">
               {notificationsList.length}
             </div>
@@ -158,7 +169,7 @@ const Navigation = ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="cursor-pointer">
-                <AvatarImage src={profilePicture} alt="@shadcn" />
+                <AvatarImage src={user && user.image} alt="@shadcn" />
                 <AvatarFallback>{profileInitials}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>

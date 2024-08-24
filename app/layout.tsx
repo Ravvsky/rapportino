@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import { getUserByID } from "./_services/userServices/getUserByID";
 import { Toaster } from "@/components/ui/toaster";
 import { SocketProvider } from "./context/SocketContext";
+import { UserProvider } from "./context/UserContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -19,33 +20,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const userID = await getLoggedUserID();
-  const OAuthSession = await auth();
-  const user = !OAuthSession && (await getUserByID(userID));
-  const userName =
-    (OAuthSession && OAuthSession.user && OAuthSession.user.name) ||
-    (user && user.name) ||
-    "";
-
-  const profileInitials = userName
-    .split(" ")
-    .map((word: string) => word[0])
-    .join("");
   return (
     <html lang="en">
-      <SocketProvider>
-        <body className={inter.className + " dark min-h-screen flex flex-col"}>
-          {(userID || OAuthSession) && (
-            <Navigation
-              profilePicture={OAuthSession?.user?.image ?? undefined}
-              profileInitials={profileInitials}
-              notifications={user.notifications}
-            />
-          )}
-          {children}
-          <Toaster />
-        </body>
-      </SocketProvider>
+      <UserProvider>
+        <SocketProvider>
+          <body
+            className={inter.className + " dark min-h-screen flex flex-col"}
+          >
+            <Navigation />
+            {children}
+            <Toaster />
+          </body>
+        </SocketProvider>
+      </UserProvider>
     </html>
   );
 }
