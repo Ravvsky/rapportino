@@ -51,6 +51,7 @@ import { useSocket } from "@/app/context/SocketContext";
 import { getUserNotification } from "@/app/_services/notificationServices/getUserNotifications";
 import { useUser } from "@/app/context/UserContext";
 import { Notification } from "@prisma/client";
+import NotificationsList from "../NotificationsList";
 const Navigation = () => {
   const components: { title: string; href: string; description: string }[] = [
     {
@@ -74,10 +75,10 @@ const Navigation = () => {
 
   useEffect(() => {
     console.log(user);
-
     if (user) {
-      console.log();
-      setNotificationsList(user.notifications);
+      setNotificationsList(
+        user.notifications.filter((notification) => !notification.isRead)
+      );
     }
   }, [user]);
 
@@ -96,8 +97,10 @@ const Navigation = () => {
   useEffect(() => {
     if (socket) {
       const handleMessage = async (msg) => {
-        console.log("Received message:", msg);
-        setNotificationsList(await getUserNotification());
+        const notifications = await getUserNotification();
+        setNotificationsList(
+          notifications.filter((notification) => notification.isRead === true)
+        );
       };
 
       socket.on("notification", handleMessage);
@@ -152,19 +155,25 @@ const Navigation = () => {
         </NavigationMenuList>
       </NavigationMenu>
       <div className="flex gap-8 items-center">
-        <Button
-          variant="outline"
-          size="icon"
-          className="ml-auto h-8 w-8 relative"
-        >
-          <Bell className="h-4 w-4" />
-          <span className="sr-only">Toggle notifications</span>
-          {notificationsList && notificationsList.length > 0 && (
-            <div className="absolute bg-red-500 px-2  rounded-full  text-[10px] flex items-center justify-center -top-3 -right-3 transform origin-right">
-              {notificationsList.length}
-            </div>
-          )}
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="ml-auto h-8 w-8 relative"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="sr-only">Toggle notifications</span>
+              {notificationsList && notificationsList.length > 0 && (
+                <div className="absolute bg-red-500 px-2  rounded-full  text-[10px] flex items-center justify-center -top-3 -right-3 transform origin-right">
+                  {notificationsList.length}
+                </div>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <NotificationsList />
+        </DropdownMenu>
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
