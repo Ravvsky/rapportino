@@ -2,9 +2,19 @@ import { getTeamByID } from "@/app/_services/teamServices/getTeamByID";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import sendEmail from "@/app/_actions/sendEmail";
 import AddMemberDialog from "../../_components/AddMemberDialog";
 import getLoggedUserID from "@/app/_actions/getLoggedUserID";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -12,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 const Page = async ({ params }: { params: { slug: string } }) => {
   const teamID = +params.slug.split("-")[1];
   const team = await getTeamByID(teamID).catch(() => {
@@ -33,15 +42,55 @@ const Page = async ({ params }: { params: { slug: string } }) => {
                 <p className="text-sm text-muted-foreground">{member.email}</p>
               </div>
               <div className="ml-auto font-medium">
-                <Select>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Theme" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="member">Member</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant={"outline"}>Change</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Edit member</DialogTitle>
+                      <DialogDescription>
+                        Make changes to your team member here.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                          Role
+                        </Label>
+
+                        <Select>
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue
+                              placeholder={
+                                member.role.charAt(0).toUpperCase() +
+                                member.role.slice(1).toLowerCase()
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="member">Member</SelectItem>
+                            <SelectItem value="manager">Manager</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="username" className="text-right hidden">
+                          Remove member
+                        </Label>
+                        <Button
+                          className="col-span-3 text-right col-start-2 "
+                          variant={"destructive"}
+                        >
+                          Remove member
+                        </Button>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="submit">Save changes</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             {index < team.members.length - 1 && <Separator />}
@@ -53,3 +102,6 @@ const Page = async ({ params }: { params: { slug: string } }) => {
 };
 
 export default Page;
+const formatRole = (role: string) => {
+  return role.charAt(0) + role.slice(1).toLowerCase();
+};
