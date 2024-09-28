@@ -1,5 +1,4 @@
 "use client";
-
 import { createContext, useContext, useEffect, useState } from "react";
 import getLoggedUserID from "../_actions/getLoggedUserID";
 import { getUserByID } from "../_services/userServices/getUserByID";
@@ -9,19 +8,28 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  useEffect(() => {
-    const fetchUserID = async () => {
-      const userID = await getLoggedUserID();
-      const fetchedUser = await getUserByID(userID);
-      setUser(fetchedUser);
-    };
 
-    fetchUserID();
+  const fetchUser = async () => {
+    const userID = await getLoggedUserID();
+    const fetchedUser = await getUserByID(userID);
+    setUser(fetchedUser);
+  };
+
+  const refetchUser = () => {
+    fetchUser();
+  };
+
+  useEffect(() => {
+    fetchUser();
   }, []);
+
   return (
-    <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>
+    <UserContext.Provider value={{ user, refetchUser }}>
+      {children}
+    </UserContext.Provider>
   );
 };
+
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
