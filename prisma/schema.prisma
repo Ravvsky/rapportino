@@ -39,6 +39,8 @@ model UserTeam {
   role      TeamRole @default(MEMBER)
   createdAt DateTime @default(now())
   Team      Team     @relation(fields: [teamId], references: [id], name: "TeamMembers")
+
+  @@unique([userId, teamId])
 }
 
 enum TeamRole {
