@@ -11,7 +11,7 @@ export async function createTeam(name: string) {
         create: [
           {
             userId: userID,
-            role: "MEMBER",
+            role: "MANAGER",
             isInvited: false,
           },
         ],
