@@ -1,4 +1,6 @@
+import getLoggedUserID from "@/app/_actions/getLoggedUserID";
 import { getTeamByID } from "@/app/_services/teamServices/getTeamByID";
+import { getUserByID } from "@/app/_services/userServices/getUserByID";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
@@ -8,11 +10,15 @@ const Page = async ({ params }: { params: { slug: string } }) => {
   const team = await getTeamByID(teamID).catch(() => {
     notFound();
   });
-  if (!team) {
+  const userID = await getLoggedUserID();
+  const user = await getUserByID(userID);
+  if (
+    !team ||
+    team.members.find((member) => member.userId == user.id)?.isInvited
+  ) {
     notFound();
   }
 
-  console.log(team);
   return (
     <div className="flex  w-full gap-5 flex-col container ">
       <CardTitle>Days off</CardTitle>
