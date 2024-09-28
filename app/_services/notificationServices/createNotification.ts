@@ -7,12 +7,39 @@ export async function createNotification(
   description: string,
   url: string
 ) {
-  return await prisma.notification.create({
-    data: {
-      title: title,
-      description: description,
-      url: url,
-      userId: userId,
-    },
+  return prisma.$transaction(async (prisma) => {
+    const currentNotificationsCount = await prisma.notification.count({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (currentNotificationsCount > 4) {
+      const oldestNotification = await prisma.notification.findFirst({
+        where: {
+          userId: userId,
+        },
+        orderBy: {
+          id: "asc",
+        },
+      });
+
+      if (oldestNotification) {
+        await prisma.notification.delete({
+          where: {
+            id: oldestNotification.id,
+          },
+        });
+      }
+    }
+
+    await prisma.notification.create({
+      data: {
+        title: title,
+        description: description,
+        url: url,
+        userId: userId,
+      },
+    });
   });
 }
