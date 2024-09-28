@@ -46,16 +46,33 @@ const AddMemberDialog = ({
     if (invitedUserID?.id) {
       await sendEmail(teamID, ownerID, invitedUserEmail).then(async (res) => {
         if (res) {
-          setOpen(!open);
-          await addUserToTeam(invitedUserID?.id, teamID);
-          createNotification(invitedUserID?.id, "title", "description", "url");
-          socket.emit(
-            "notification",
-            `You have been invited to ${teamID}`,
-            invitedUserID?.id
-          );
+          await addUserToTeam(invitedUserID?.id, teamID).then((res) => {
+            if (res.error) {
+              if ((res.error = "P2002")) {
+                console.log(res.error);
+                actions.setFieldError(
+                  "email",
+                  "That user is already invited to team."
+                );
+              }
+              return;
+            }
+            setOpen(!open);
 
-          toast({ title: "Your invitation has been send succesfuly." });
+            createNotification(
+              invitedUserID?.id,
+              "You have been invited to team",
+              `You have been invited to team ${teamID}`,
+              "teams"
+            );
+            socket.emit(
+              "notification",
+              `You have been invited to ${teamID}`,
+              invitedUserID?.id
+            );
+
+            toast({ title: "Your invitation has been send succesfuly." });
+          });
         } else {
           actions.setFieldError(
             "email",
